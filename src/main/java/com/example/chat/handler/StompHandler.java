@@ -19,7 +19,7 @@ public class StompHandler implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(message);
-        log.info("headerAccessor 내용 : {}", headerAccessor.getNativeHeader("Authorization"));
+        log.info("StompCommand 내용 : {}", headerAccessor.getCommand());
 
         return message;
     }

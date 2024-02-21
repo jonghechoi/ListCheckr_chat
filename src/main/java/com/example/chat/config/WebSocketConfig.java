@@ -15,18 +15,20 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final StompHandler stompHandler;
 
-    // The registerStompEndpoints() method registers the "/ws/chat" endpoint for websocket connections.
+    // WebSocket 클라이언트가 WebSocket handshake를 위해 연결하는 endpoint URL 설정
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws/chat").setAllowedOrigins("*").withSockJS();
+        registry.addEndpoint("/chat/pub").setAllowedOriginPatterns("*").withSockJS();
     }
 
-    // designates the /app prefix for messages that are bound for methods annotated with @MessageMapping. This prefix will be used to define all the message mappings.
+    // destination header가 "/app"으로 시작하는 STOMP 메시지를 @MessageMapping 메소드로 라우팅
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.setApplicationDestinationPrefixes("/app");
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.setApplicationDestinationPrefixes("/chat/pub");
     }
 
+    // ApplicationContext event는 STOMP 커넥션 라이프사이클에 대해 알림을 제공하지만 모든 client 메시지는 아니다.
+    // Applications는 ChannelInterceptor를 등록하여 모든 메시지나 chain의 모든 부분을 인터셉트 할 수 있다.
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(stompHandler);

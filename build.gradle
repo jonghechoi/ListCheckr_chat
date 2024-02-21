@@ -23,14 +23,20 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-
-    // WebSocket
-    implementation 'org.springframework.boot:spring-boot-starter-websocket:3.2.2'
-
-
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    /* WebSocket */
+    implementation 'org.springframework.boot:spring-boot-starter-websocket:3.2.2'
+
+    /* Kafka */
+    implementation 'org.apache.kafka:kafka-clients:3.6.1'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.google.guava:guava:30.1-jre'
+
+    /* Configuration Processor */
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:3.2.0'
 }
 
 tasks.named('test') {
