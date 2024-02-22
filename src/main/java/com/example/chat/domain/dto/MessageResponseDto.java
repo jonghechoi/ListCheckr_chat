@@ -1,9 +1,13 @@
 package com.example.chat.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class MessageRequestDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class MessageResponseDto {
     private String type;
     private String boardId;
     private String sender;

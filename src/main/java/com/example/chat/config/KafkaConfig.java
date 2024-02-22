@@ -1,6 +1,5 @@
 package com.example.chat.config;
 
-import com.example.chat.domain.Message;
 import com.google.common.collect.ImmutableMap;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -27,7 +26,7 @@ public class KafkaConfig {
     private Map<String, String> consumer = new HashMap<>();
 
     @Bean
-    public ProducerFactory<String, Message> producerFactory() {
+    public ProducerFactory<String, String> producerFactory() {
         return new DefaultKafkaProducerFactory<>(getProducerProps());
     }
 
@@ -41,7 +40,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Message> kafkaTemplate() {
+    public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
