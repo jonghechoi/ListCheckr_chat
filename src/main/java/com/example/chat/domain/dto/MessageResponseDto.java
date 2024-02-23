@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageResponseDto {
-    private String type;
     private String boardId;
     private String sender;
     private String message;
     private String time;
+    private String type;
 }

@@ -1,8 +1,7 @@
 package com.example.chat.controller;
 
 import com.example.chat.domain.dto.MessageRequestDto;
-import com.example.chat.service.KafkaService;
-import com.fasterxml.jackson.core.JsonParseException;
+import com.example.chat.service.kafka.KafkaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ public class ChatController {
     public void chat(@DestinationVariable String boardId, MessageRequestDto messageRequestDto) {
         log.info("board : {}", boardId);
 
-        // kafka
         try {
             kafkaService.send(messageRequestDto);
         } catch(JsonProcessingException e) {

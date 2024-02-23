@@ -1,10 +1,8 @@
-package com.example.chat.service;
+package com.example.chat.service.kafka;
 
 import com.example.chat.domain.dto.MessageRequestDto;
 import com.example.chat.domain.dto.MessageResponseDto;
-import com.example.chat.repository.MongoRepository;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParseException;
+import com.example.chat.service.mongo.MongoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +12,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,11 +19,15 @@ public class KafkaService {
     private final SimpMessageSendingOperations sendingOperations;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final MongoRepository mongoRepository;
+    private final MongoService mongoService;
 
     public void send(MessageRequestDto messageRequestDto) throws JsonProcessingException{
         log.info("Kafka Publish Message : {}", messageRequestDto.getMessage());
 
+        // DB 저장
+        mongoService.createAndSaveChatListByBoardId(messageRequestDto);
+
+        // Topic 발행
         String message = objectMapper.writeValueAsString(messageRequestDto);
         kafkaTemplate.send("topic_chat", message);
     }
@@ -37,10 +37,9 @@ public class KafkaService {
         log.info("Kafka Consume Message : {}", subscribeString);
 
         try {
+            // Topic 구독자에게 브로드캐스팅
             MessageResponseDto messageResponseDto = objectMapper.readValue(subscribeString, MessageResponseDto.class);
-            sendingOperations.convertAndSend("/topic/aaa", messageResponseDto);
-
-            mongoRepository.createAndSaveChatListByBoardId(messageResponseDto);
+            sendingOperations.convertAndSend("/topic/" + messageResponseDto.getBoardId(), messageResponseDto);
         } catch(JsonProcessingException e) {
             log.error("[Kafka Consume] Json Parse Excetpion Occured : {}", e.getMessage());
         }
