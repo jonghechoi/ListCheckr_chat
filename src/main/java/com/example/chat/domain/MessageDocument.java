@@ -1,47 +1,51 @@
 package com.example.chat.domain;
 
 import com.example.chat.domain.dto.MessageRequestDto;
-import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Document(collection = "chat-collection")
 @NoArgsConstructor
 public class MessageDocument {
     @Id
     private String boardId;
-    private Set<String> members;
+    private Set<String> members = new HashSet<>();
     private String createTime;
     private List<MessageContent> messageContentList = new ArrayList<>();
 
-    public MessageDocument toEntity(MessageRequestDto dto) {
-        MessageDocument messageDocument = new MessageDocument();
-        messageDocument.setBoardId(dto.getBoardId());
-        messageDocument.setMembers(dto.getSender());
-        messageDocument.setCreateTime(dto.getTime());
-        messageDocument.setMessageContentList(dto.getMessage());
-
-        return messageDocument;
+    public MessageDocument(MessageRequestDto dto, List<MessageContent> messageContentList) {
+        this.setBoardId(dto.getBoardId());
+        this.setMembers(dto.getMessageContent().getSender());
+        this.setCreateTime(LocalDateTime.now().toString());
+        this.setMessageContentList(messageContentList);
     }
 
-    private void setBoardId(String boardId) {
+    public void setBoardId(String boardId) {
         this.boardId = boardId;
     }
 
-    private void setMembers(String member) {
+    public void setMembers(String member) {
         this.members.add(member);
     }
 
-    private void setCreateTime(String time) {
+    public void setCreateTime(String time) {
         this.createTime = time;
     }
 
-    private void setMessageContentList(MessageContent messageContent) {
-        this.messageContentList.add(messageContent);
+    public void setMessageContentList(List<MessageContent> messageContents) {
+        this.messageContentList.addAll(messageContents);
+    }
+
+    public List<MessageContent> getMessageContentList() {
+        return this.messageContentList;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.chat.service.kafka;
 
+import com.example.chat.domain.MessageDocument;
 import com.example.chat.domain.dto.MessageRequestDto;
 import com.example.chat.domain.dto.MessageResponseDto;
 import com.example.chat.service.mongo.MongoService;
@@ -22,7 +23,7 @@ public class KafkaService {
     private final MongoService mongoService;
 
     public void send(MessageRequestDto messageRequestDto) throws JsonProcessingException{
-        log.info("Kafka Publish Message : {}", messageRequestDto.getMessage());
+        log.info("Kafka Publish Message : {}", messageRequestDto.getMessageContent().getContent());
 
         // DB 저장
         mongoService.createAndSaveChatListByBoardId(messageRequestDto);

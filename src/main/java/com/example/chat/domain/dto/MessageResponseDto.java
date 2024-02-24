@@ -1,5 +1,6 @@
 package com.example.chat.domain.dto;
 
+import com.example.chat.domain.MessageContent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,8 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MessageResponseDto {
     private String boardId;
-    private String sender;
-    private String message;
-    private String time;
+    private MessageContent messageContent;
     private String type;
 }

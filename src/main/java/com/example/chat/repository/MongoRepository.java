@@ -1,10 +1,10 @@
 package com.example.chat.repository;
 
+import com.example.chat.domain.MessageContent;
 import com.example.chat.domain.MessageDocument;
-import com.example.chat.domain.dto.MessageRequestDto;
-import com.example.chat.domain.dto.MessageResponseDto;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class MongoRepository {
@@ -32,21 +33,25 @@ public class MongoRepository {
 
     public boolean isBoardIdExist(String boardId) {
         Query query = new Query(Criteria.where("boardId").is(boardId));
-        return Optional.ofNullable(mongoTemplate.find(query, MessageDocument.class))
-                .isPresent();
+        return mongoTemplate.exists(query, COLLECTION_NAME);
+    }
+
+    public MessageDocument getMessageDocument(String boardId) {
+        return mongoTemplate.findOne(Query.query(Criteria.where("boardId").is(boardId)), MessageDocument.class);
     }
 
     public void createDocument(MessageDocument messageDocument) {
         mongoTemplate.save(messageDocument, COLLECTION_NAME);
     }
 
-    public void appendChatHistoryIntoDocument(String boardId, List<MessageRequestDto> messageList) {
+    public void appendChatHistoryIntoDocument(String boardId, List<MessageContent> messageContentList) {
+        messageContentList.stream()
+                .forEach( messageContent -> {
+                    log.info("[MongoRepository] 진입 : {}", messageContent.toString());
+                });
 
-        Query query = new Query(Criteria.where("boardId").is(boardId));
-
-        Update update = new Update();
-        update.addToSet("messageList", messageList);
-
-        mongoTemplate.updateFirst(query, update, MessageDocument.class);
+        MessageDocument messageDocument = this.getMessageDocument(boardId);
+        messageDocument.setMessageContentList(messageContentList);
+        mongoTemplate.save(messageDocument, COLLECTION_NAME);
     }
 }

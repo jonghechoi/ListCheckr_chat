@@ -6,8 +6,6 @@ import lombok.Data;
 @Data
 public class MessageRequestDto {
     private String boardId;
-    private String sender;
-    private MessageContent message;
-    private String time;
+    private MessageContent messageContent;
     private String type;
 }
