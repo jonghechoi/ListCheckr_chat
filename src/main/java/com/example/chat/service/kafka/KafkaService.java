@@ -3,6 +3,7 @@ package com.example.chat.service.kafka;
 import com.example.chat.domain.MessageDocument;
 import com.example.chat.domain.dto.MessageRequestDto;
 import com.example.chat.domain.dto.MessageResponseDto;
+import com.example.chat.handler.StompHandler;
 import com.example.chat.service.mongo.MongoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,16 +22,17 @@ public class KafkaService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final MongoService mongoService;
+    private final StompHandler stompHandler;
 
-    public void send(MessageRequestDto messageRequestDto) throws JsonProcessingException{
+    public void publish(MessageRequestDto messageRequestDto) throws JsonProcessingException{
         log.info("Kafka Publish Message : {}", messageRequestDto.getMessageContent().getContent());
-
-        // DB 저장
-        mongoService.createAndSaveChatListByBoardId(messageRequestDto);
 
         // Topic 발행
         String message = objectMapper.writeValueAsString(messageRequestDto);
         kafkaTemplate.send("topic_chat", message);
+
+        // DB 저장
+        mongoService.appendChatListMapByBoardId(messageRequestDto);
     }
 
     @KafkaListener(topics = "topic_chat")

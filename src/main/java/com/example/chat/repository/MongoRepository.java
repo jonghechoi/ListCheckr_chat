@@ -32,12 +32,12 @@ public class MongoRepository {
     }
 
     public boolean isBoardIdExist(String boardId) {
-        Query query = new Query(Criteria.where("boardId").is(boardId));
+        Query query = new Query(Criteria.where("_id").is(boardId));
         return mongoTemplate.exists(query, COLLECTION_NAME);
     }
 
     public MessageDocument getMessageDocument(String boardId) {
-        return mongoTemplate.findOne(Query.query(Criteria.where("boardId").is(boardId)), MessageDocument.class);
+        return mongoTemplate.findOne(Query.query(Criteria.where("_id").is(boardId)), MessageDocument.class);
     }
 
     public void createDocument(MessageDocument messageDocument) {
@@ -45,11 +45,6 @@ public class MongoRepository {
     }
 
     public void appendChatHistoryIntoDocument(String boardId, List<MessageContent> messageContentList) {
-        messageContentList.stream()
-                .forEach( messageContent -> {
-                    log.info("[MongoRepository] 진입 : {}", messageContent.toString());
-                });
-
         MessageDocument messageDocument = this.getMessageDocument(boardId);
         messageDocument.setMessageContentList(messageContentList);
         mongoTemplate.save(messageDocument, COLLECTION_NAME);

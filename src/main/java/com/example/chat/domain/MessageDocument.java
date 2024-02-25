@@ -22,6 +22,12 @@ public class MessageDocument {
     private String createTime;
     private List<MessageContent> messageContentList = new ArrayList<>();
 
+    public MessageDocument(String boardId, String sender, String createTime) {
+        this.setBoardId(boardId);
+        this.setMembers(sender);
+        this.setCreateTime(createTime);
+    }
+
     public MessageDocument(MessageRequestDto dto, List<MessageContent> messageContentList) {
         this.setBoardId(dto.getBoardId());
         this.setMembers(dto.getMessageContent().getSender());
