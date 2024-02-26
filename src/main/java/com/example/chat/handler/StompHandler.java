@@ -23,29 +23,28 @@ public class StompHandler implements ChannelInterceptor {
     private final MongoService mongoService;
     public static Map<String, Integer> StompConnectionNumByBoardId = new HashMap<>();
     public String connectionStatus;
+    public static final String CONNECT = "CONNECT";
+    public static final String DISCONNECT = "DISCONNECT";
 
 
     // Invoked before the Message is actually sent to the channel. This allows for modification of the Message if necessary (메시지가 전달되기 전에 JWT 등 보안인증처리 등 가능)
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(message);
-        String headerCommand = headerAccessor.getCommand().toString();
-        System.out.println(headerAccessor);
-        connectionStatus = headerCommand;
+        this.connectionStatus = headerAccessor.getCommand().toString();
         String boardId = headerAccessor.getFirstNativeHeader("boardId");
 
-        log.info("[Stomp] Header Command : {} and BoardId : {}", headerCommand, boardId);
+        log.info("[Stomp] Header Command : {} and BoardId : {}", connectionStatus, boardId);
 
         if(boardId == null) { return message; }
 
-        if(headerCommand.equals("CONNECT") && mongoService.checkDocumentByBoardId(boardId)) {
-            String sender = headerAccessor.getFirstNativeHeader("sender");
-            String createTime = headerAccessor.getFirstNativeHeader("createTime");
-            mongoService.createDocumentByBoardId(boardId, sender, createTime);
-
+        if(connectionStatus.equals(CONNECT) && (!mongoService.checkDocumentByBoardId(boardId))) {
+                String sender = headerAccessor.getFirstNativeHeader("sender");
+                String createTime = headerAccessor.getFirstNativeHeader("createTime");
+                mongoService.createDocumentByBoardId(boardId, sender, createTime);
         }
 
-        if(headerCommand.equals("CONNECT")) {
+        if(connectionStatus.equals(CONNECT)) {
             if(!StompConnectionNumByBoardId.containsKey(boardId) ) {
                 StompConnectionNumByBoardId.put(boardId, 1);
             }
@@ -56,7 +55,7 @@ public class StompHandler implements ChannelInterceptor {
 
             log.info("[Stomp] Command : {}, BoardId : {}, ConnectionNum : {}", connectionStatus, boardId, StompConnectionNumByBoardId.get(boardId));
         }
-        else if(headerCommand.equals("DISCONNECT")) {
+        else if(connectionStatus.equals(DISCONNECT)) {
             int connectionNum = StompConnectionNumByBoardId.get(boardId);
             StompConnectionNumByBoardId.put(boardId, -- connectionNum);
 

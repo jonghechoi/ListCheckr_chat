@@ -48,7 +48,8 @@ public class MessageDocument {
     }
 
     public void setMessageContentList(List<MessageContent> messageContents) {
-        this.messageContentList.addAll(messageContents);
+        if(messageContents != null)
+            this.messageContentList.addAll(messageContents);
     }
 
     public List<MessageContent> getMessageContentList() {

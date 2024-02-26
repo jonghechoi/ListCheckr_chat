@@ -18,12 +18,14 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class MongoService {
-    Map<String, List<MessageContent>> boardIdMap = new HashMap<>();
+    private Map<String, List<MessageContent>> boardIdMap = new HashMap<>();
     private final MongoRepository mongoRepository;
 
-    // 새로운 사용자 입장시 기존 데이터 전송
-    public MessageDocument getChatListByBoardId(String boardId) {
-        return mongoRepository.getMessageDocument(boardId);
+    public MessageDocument fetchChatListByBoardId(String boardId) {
+        MessageDocument existMessageDocument = mongoRepository.getMessageDocument(boardId);
+        existMessageDocument.setMessageContentList(boardIdMap.get(boardId));
+
+        return existMessageDocument;
     }
 
     public void appendChatListMapByBoardId(MessageRequestDto messageRequestDto) {
@@ -38,12 +40,6 @@ public class MongoService {
             List<MessageContent> originalChatList = boardIdMap.get(boardId);
             originalChatList.add(messageContent);
         }
-
-        // 커넥션 0이 되었을때 DB에 저장되도록 수정 필요
-//        if(StompHandler.StompConnectionNumByBoardId.get(boardId) == 0) {
-//            System.out.println("여기 드루옴 boardId : " + boardId);
-//            saveChatListByBoardIdToMongo(messageRequestDto, boardIdMap.get(boardId));
-//        }
     }
 
     public boolean checkDocumentByBoardId(String boardId) {
@@ -51,7 +47,7 @@ public class MongoService {
             return false;
         }
 
-        return !mongoRepository.isBoardIdExist(boardId);
+        return mongoRepository.isBoardIdExist(boardId);
     }
 
     public void createDocumentByBoardId(String boardId, String sender, String createTime) {
@@ -64,20 +60,7 @@ public class MongoService {
     }
 
     public void saveChatListByBoardIdToMongo(String boardId, List<MessageContent> messageContentList) {
-//        String boardId = messageRequestDto.getBoardId();
-
-//        String existCheck = "exist";
-//        if(!mongoRepository.isBoardIdExist(boardId)) {
-//            existCheck = "not " + existCheck;
-//
-//            MessageDocument messageDocument = new MessageDocument(messageRequestDto, messageContentList);
-//            mongoRepository.createDocument(messageDocument);
-//        }
-//        else {
-            // chat history 저장
-            mongoRepository.appendChatHistoryIntoDocument(boardId, messageContentList);
-//        }
-
-//        log.info("[Document] {} : {}", existCheck, boardId);
+        mongoRepository.appendChatHistoryIntoDocument(boardId, messageContentList);
+        boardIdMap.remove(boardId);
     }
 }

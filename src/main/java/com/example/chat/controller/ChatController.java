@@ -31,9 +31,11 @@ public class ChatController {
         }
     }
 
-    @GetMapping("/api/topic/{boardId}")
+    @GetMapping("/api/chat/{boardId}")
     public ResponseEntity<MessageDocument> chatHistory(@PathVariable String boardId) {
-        MessageDocument messageDocument = mongoService.getChatListByBoardId(boardId);
+        MessageDocument messageDocument = mongoService.fetchChatListByBoardId(boardId);
+        log.info("MessageDocument : {}", messageDocument.getMessageContentList().toString());
+
         return new ResponseEntity<>(messageDocument, HttpStatus.OK);
     }
 }

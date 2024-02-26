@@ -13,8 +13,8 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-//                registry.addMapping("/greeting-javaconfig").allowedOrigins("http://localhost:8080", "http://192.168.30.93:8080");
-                registry.addMapping("/app/**").allowedOrigins("http://localhost:3000")
+                registry.addMapping("/api/**")
+                        .allowedOrigins("http://localhost:3000")
                         .allowedMethods("*")
                         .allowedHeaders("Origin", "Content-Type", "Accept")
                         .allowCredentials(false);
